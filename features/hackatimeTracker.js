@@ -8,7 +8,7 @@ async function checkHackatimeAndNotify(client) {
       'https://hackatime.hackclub.com/api/hackatime/v1/users/current/statusbar/today',
       {
         headers: {
-          'Authorization': 'Bearer 6f0c8563-d367-414b-97cf-b3a0c5c9aa33'
+          'Authorization': `Bearer ${process.env.HACKATIMEAPI}`
         }
       }
     );
