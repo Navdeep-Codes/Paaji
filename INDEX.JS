@@ -7,6 +7,7 @@ const { handleThreadSummary } = require('./features/threadSummary');
 const { handleConversation } = require('./features/conversation');
 const { startHackatimeTracking } = require('./features/hackatimeTracker');
 const { handleAddMembers } = require('./features/addMembers'); 
+const { handleHcdMe } = require('./features/HCD/me'); 
 const app = new App({
   token: process.env.BOT_AUTH_TOKEN,       
   signingSecret: process.env.BOT_SIGNIN_SECRET,
@@ -29,26 +30,30 @@ app.event('app_mention', async ({ event, say, client }) => {
   
   let response;
 
-  const channelActivityMatch = Q.match(/(?:what'?s going on|tell me what'?s happening|recent activity|what'?s happening) in (#[\w-]+)/i);
-  
-  if (channelActivityMatch) {
-    const channelName = channelActivityMatch[1];
-    response = await handleChannelActivity(client, channelName);
-  } else if (Q.match(/add (\d+) members of #([\w-]+) (here|to #([\w-]+))/i)) {
-    response = await handleAddMembers(client, event, Q); 
+  if (Q.match(/^!HCD me/i)) {
+    response = await handleHcdMe(event.user); 
   } else {
-    const threadUrlMatch = Q.match(/https:\/\/hackclub\.slack\.com\/archives\/([A-Z0-9]+)\/p(\d+)/);
-    
-    if (threadUrlMatch) {
-      const channelId = threadUrlMatch[1];
-      const timestamp = threadUrlMatch[2];
-      const threadTs = `${timestamp.slice(0, 10)}.${timestamp.slice(10)}`;
-      
-      const questionWithoutUrl = Q.replace(/https:\/\/hackclub\.slack\.com\/archives\/[A-Z0-9]+\/p\d+/, '').trim();
-      
-      response = await handleThreadSummary(client, channelId, threadTs, questionWithoutUrl);
+    const channelActivityMatch = Q.match(/(?:what'?s going on|tell me what'?s happening|recent activity|what'?s happening) in (#[\w-]+)/i);
+  
+    if (channelActivityMatch) {
+      const channelName = channelActivityMatch[1];
+      response = await handleChannelActivity(client, channelName);
+    } else if (Q.match(/add (\d+) members of #([\w-]+) (here|to #([\w-]+))/i)) {
+      response = await handleAddMembers(client, event, Q); 
     } else {
-      response = await handleConversation(client, event, Q);
+      const threadUrlMatch = Q.match(/https:\/\/hackclub\.slack\.com\/archives\/([A-Z0-9]+)\/p(\d+)/);
+    
+      if (threadUrlMatch) {
+        const channelId = threadUrlMatch[1];
+        const timestamp = threadUrlMatch[2];
+        const threadTs = `${timestamp.slice(0, 10)}.${timestamp.slice(10)}`;
+      
+        const questionWithoutUrl = Q.replace(/https:\/\/hackclub\.slack\.com\/archives\/[A-Z0-9]+\/p\d+/, '').trim();
+      
+        response = await handleThreadSummary(client, channelId, threadTs, questionWithoutUrl);
+      } else {
+        response = await handleConversation(client, event, Q);
+      }
     }
   }
 
@@ -56,6 +61,13 @@ app.event('app_mention', async ({ event, say, client }) => {
     channel: event.channel,
     text: `${response}`,
     thread_ts: event.ts
+  });
+});
+app.message(/^!HCD me/i, async ({ message, say }) => {
+  const response = await handleHcdMe(message.user);
+  await say({
+    text: response,
+    thread_ts: message.ts
   });
 });
 

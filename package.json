@@ -10,6 +10,7 @@
   "description": "",
   "dependencies": {
     "@slack/bolt": "^4.4.0",
+    "airtable": "^0.12.2",
     "axios": "^1.10.0",
     "dayjs": "^1.11.13",
     "dotenv": "^17.0.0",
