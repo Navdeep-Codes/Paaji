@@ -59,6 +59,26 @@ app.event('app_mention', async ({ event, say, client }) => {
         response = await handleConversation(client, event, Q);
       }
     }
+    if (Q.match(/-D\s+(\d+)/i)) {
+    const match = Q.match(/-D\s+(\d+)/i);
+    const numToDelete = parseInt(match[1], 10);
+    const history =  client.conversations.history({
+      channel: message.channel,
+      limit: 100
+    });
+    let deleted = 0;
+    for (const msg of history.messages) {
+if (
+  msg.bot_id === process.env.BOT_ID ||
+  msg.user === process.env.BOT_USER_ID ||
+  msg.bot_profile?.name === "Paaji"
+){        try { client.chat.delete({channel: message.channel,ts: msg.ts});
+          deleted++;
+          if (deleted >= numToDelete) break;
+        } catch (err) {console.error('Failed to delete message:', err.data?.error || err.message);}}}
+     say({text: `Deleted ${deleted} message(s).`,thread_ts: message.ts});return;
+
+  };f
   }
 
   await client.chat.postMessage({
@@ -86,26 +106,7 @@ app.message(async ({ message, say }) => {
   }
 });
 
-  if (Q.match(/-D\s+(\d+)/i)) {
-    const match = Q.match(/-D\s+(\d+)/i);
-    const numToDelete = parseInt(match[1], 10);
-    const history = await client.conversations.history({
-      channel: message.channel,
-      limit: 100
-    });
-    let deleted = 0;
-    for (const msg of history.messages) {
-if (
-  msg.bot_id === process.env.BOT_ID ||
-  msg.user === process.env.BOT_USER_ID ||
-  msg.bot_profile?.name === "Paaji"
-){        try {await client.chat.delete({channel: message.channel,ts: msg.ts});
-          deleted++;
-          if (deleted >= numToDelete) break;
-        } catch (err) {console.error('Failed to delete message:', err.data?.error || err.message);}}}
-    await say({text: `Deleted ${deleted} message(s).`,thread_ts: message.ts});return;
-
-  };
+  
 
 
 (async () => {
