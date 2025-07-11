@@ -8,6 +8,7 @@ const { handleConversation } = require('./features/conversation');
 const { startHackatimeTracking } = require('./features/hackatimeTracker');
 const { handleAddMembers } = require('./features/addMembers'); 
 const { handleHcdMe } = require('./features/HCD/me'); 
+const { scheduleDailyPrompt, handleNotionUpdate } = require('./features/DailyUpdate');
 const app = new App({
   token: process.env.BOT_AUTH_TOKEN,       
   signingSecret: process.env.BOT_SIGNIN_SECRET,
@@ -16,6 +17,9 @@ const app = new App({
 });
 
 let hackatimeInterval;
+
+const TARGET_CHANNEL = 'C08JRG8VCBY';
+scheduleDailyPrompt(app, TARGET_CHANNEL);
 
 app.event('app_mention', async ({ event, say, client }) => {
   const Q = event.text.replace(/<@[^>]+>/, '').trim(); 
@@ -69,6 +73,17 @@ app.message(/^!HCD me/i, async ({ message, say }) => {
     text: response,
     thread_ts: message.ts
   });
+});
+app.message(async ({ message, say }) => {
+  if (message.user && message.channel === TARGET_CHANNEL) {
+    const entry = handleNotionUpdate(message, message.user);
+    if (entry) {
+      await say({
+        text: `Cool Update! It has been saved. :yay:`,
+        thread_ts: message.ts
+      });
+    }
+  }
 });
 
 (async () => {
