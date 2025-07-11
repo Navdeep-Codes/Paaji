@@ -1,7 +1,8 @@
 async function handleAddMembers(client, event, Q) {
+  console.log(event)
   const match = Q.match(/add (\d+) members of #([\w-]+) (here|to #([\w-]+))/i);
   if (!match) {
-    return 'use : add x members of #channel here/to #channeltoaddmembers';
+    return 'Usage: add x members of #channel here/to #channel';
   }
 
   const numMembersToAdd = parseInt(match[1], 10);
@@ -12,7 +13,7 @@ async function handleAddMembers(client, event, Q) {
     const sourceChannel = await getChannelByName(client, sourceChannelName);
     const targetChannel = targetChannelName === event.channel
       ? { id: event.channel }
-      : await getChannelByName(client, targetChannelName);
+      : await getChannelByName(client, targetChannelName.replace('#', ''));
 
     if (!sourceChannel) {
       return `Source channel #${sourceChannelName} not found.`;
@@ -23,34 +24,53 @@ async function handleAddMembers(client, event, Q) {
     }
 
     const members = await client.conversations.members({ channel: sourceChannel.id });
+
     if (!members.members || members.members.length === 0) {
       return `No members found in #${sourceChannelName}.`;
     }
 
-    const availableMembers = members.members;
-    if (availableMembers.length < numMembersToAdd) {
-      return `Not enough members in #${sourceChannelName} to add. Only ${availableMembers.length} available.`;
+    const userInfos = await Promise.all(
+      members.members.map(id => client.users.info({ user: id }).catch(() => null))
+    );
+
+    const realHumanMembers = userInfos
+      .filter(u => u && u.user && !u.user.is_bot && u.user.id !== 'USLACKBOT')
+      .map(u => u.user.id);
+
+    if (realHumanMembers.length < numMembersToAdd) {
+      return `Not enough eligible members in #${sourceChannelName} to select ${numMembersToAdd}.`;
     }
 
-    const selectedMembers = [];
-    while (selectedMembers.length < numMembersToAdd) {
-      const randomMember = availableMembers[Math.floor(Math.random() * availableMembers.length)];
-      if (!selectedMembers.includes(randomMember)) {
-        selectedMembers.push(randomMember);
+    const selectedUserIds = [];
+    while (selectedUserIds.length < numMembersToAdd) {
+      const randomId = realHumanMembers[Math.floor(Math.random() * realHumanMembers.length)];
+      if (!selectedUserIds.includes(randomId)) {
+        selectedUserIds.push(randomId);
       }
     }
 
-    for (const member of selectedMembers) {
+    try {
       await client.conversations.invite({
         channel: targetChannel.id,
-        users: member
+        users: selectedUserIds.join(',')
       });
+    } catch (err) {
+      if (err.data && err.data.error === 'already_in_channel') {
+        return `Some users are already in the target channel.`;
+      } else if (err.data && err.data.error === 'restricted_action') {
+        return `Cannot invite one or more users due to restrictions.`;
+      } else {
+        console.error('Invite error:', err);
+        return `Something went wrong while inviting users.`;
+      }
     }
 
-    return `Kidnapped ${numMembersToAdd} people from #${sourceChannelName} to #${targetChannelName}.`;
+const mentions = selectedUserIds.map(id => `<@${id}>`).join(', ');
+return `Added ${mentions} to #${targetChannelName.replace('#', '')}.`;
+
   } catch (error) {
     console.error('Error adding members:', error);
-    return 'Huh why dis aint working? Aye <@U083T3ZP6AV> bro, I think you broke something go fix it!';
+    return 'Huh? Something broke. Hey <@U083T3ZP6AV>, fix this!';
   }
 }
 
@@ -60,4 +80,4 @@ async function getChannelByName(client, channelName) {
 }
 
 module.exports = { handleAddMembers };
-// not working yet i will see a work around for this
+// not working yet i will see a work around for this hopeflly soon

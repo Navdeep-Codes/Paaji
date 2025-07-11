@@ -8,7 +8,7 @@ const { handleConversation } = require('./features/conversation');
 const { startHackatimeTracking } = require('./features/hackatimeTracker');
 const { handleAddMembers } = require('./features/addMembers'); 
 const { handleHcdMe } = require('./features/HCD/me'); 
-const { scheduleDailyPrompt, handleNotionUpdate } = require('./features/DailyUpdate');
+const { scheduleDailyPrompt, handleNotionUpdate } = require('./features/Daily Update/DailyUpdate');
 const app = new App({
   token: process.env.BOT_AUTH_TOKEN,       
   signingSecret: process.env.BOT_SIGNIN_SECRET,
@@ -36,14 +36,14 @@ app.event('app_mention', async ({ event, say, client }) => {
 
   if (Q.match(/^!HCD me/i)) {
     response = await handleHcdMe(event.user); 
+  } else if (Q.match(/add (\d+) members of #([\w-]+) (here|to #([\w-]+))/i)) {
+    response = await handleAddMembers( event, Q);
   } else {
     const channelActivityMatch = Q.match(/(?:what'?s going on|tell me what'?s happening|recent activity|what'?s happening) in (#[\w-]+)/i);
   
     if (channelActivityMatch) {
       const channelName = channelActivityMatch[1];
       response = await handleChannelActivity(client, channelName);
-    } else if (Q.match(/add (\d+) members of #([\w-]+) (here|to #([\w-]+))/i)) {
-      response = await handleAddMembers(client, event, Q); 
     } else {
       const threadUrlMatch = Q.match(/https:\/\/hackclub\.slack\.com\/archives\/([A-Z0-9]+)\/p(\d+)/);
     
@@ -89,7 +89,7 @@ app.message(async ({ message, say }) => {
 (async () => {
   await app.start(process.env.PORT || 3000);
   console.log('⚡️ Pajji bot is running!');
-  
+
   hackatimeInterval = startHackatimeTracking(app.client);
 })();
 
