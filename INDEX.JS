@@ -85,6 +85,10 @@ if (
   };
   }
 
+  if (response && response.includes('<think>')) {
+    response = response.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  }
+
   await client.chat.postMessage({
     channel: event.channel,
     text: `${response}`,
