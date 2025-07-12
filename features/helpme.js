@@ -15,3 +15,4 @@ async function Helpme(slackId) {
     - Help - It shows all the commands, I mean this message:yay:\n`;
     return Help_Message;
   }
+module.exports = { Helpme };

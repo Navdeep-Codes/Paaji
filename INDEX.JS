@@ -8,6 +8,7 @@ const { handleConversation } = require('./features/conversation');
 const { startHackatimeTracking } = require('./features/hackatimeTracker');
 const { handleAddMembers } = require('./features/addMembers'); 
 const { handleHcdMe } = require('./features/HCD/me'); 
+const { Helpme } = require('./features/helpme');
 const { scheduleDailyPrompt, handleNotionUpdate } = require('./features/Daily Update/DailyUpdate');
 const app = new App({
   token: process.env.BOT_AUTH_TOKEN,       
@@ -35,7 +36,6 @@ app.event('app_mention', async ({ event, say, client }) => {
   let response;
 if (Q.match(/^!Help/i)) {
     response = await Helpme(event.user); 
-    
   }
   else if (Q.match(/^!HCD me/i)) {
     response = await handleHcdMe(event.user); 
