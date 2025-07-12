@@ -37,7 +37,7 @@ async function AIResponseWithContext(Q, threadMessages) {
     const res = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'gemma2-9b-it',
+        model: 'deepseek-r1-distill-llama-70b',
         messages: messages
       },
       {
@@ -60,7 +60,7 @@ async function AIResponseSimple(Q) {
     const res = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'gemma2-9b-it',
+        model: 'deepseek-r1-distill-llama-70b',
         messages: [
           {
             role: 'system',

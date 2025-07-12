@@ -33,8 +33,11 @@ app.event('app_mention', async ({ event, say, client }) => {
   }
   
   let response;
-
-  if (Q.match(/^!HCD me/i)) {
+if (Q.match(/^!Help/i)) {
+    response = await Helpme(event.user); 
+    
+  }
+  else if (Q.match(/^!HCD me/i)) {
     response = await handleHcdMe(event.user); 
   } else if (Q.match(/add (\d+) members of #([\w-]+) (here|to #([\w-]+))/i)) {
     response = await handleAddMembers( event, Q);
