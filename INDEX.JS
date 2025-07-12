@@ -79,7 +79,7 @@ if (
         } catch (err) {console.error('Failed to delete message:', err.data?.error || err.message);}}}
      say({text: `Deleted ${deleted} message(s).`,thread_ts: message.ts});return;
 
-  };f
+  };
   }
 
   await client.chat.postMessage({
