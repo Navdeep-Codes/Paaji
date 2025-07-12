@@ -1,6 +1,6 @@
 const { App } = require('@slack/bolt');
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config();// to load stuff that your mom doesnt know...
 
 const { handleChannelActivity } = require('./features/channelActivity');
 const { handleThreadSummary } = require('./features/threadSummary');
@@ -59,6 +59,7 @@ app.event('app_mention', async ({ event, say, client }) => {
         response = await handleConversation(client, event, Q);
       }
     }
+    // -D gives errors but what can I do :(
     if (Q.match(/-D\s+(\d+)/i)) {
     const match = Q.match(/-D\s+(\d+)/i);
     const numToDelete = parseInt(match[1], 10);
