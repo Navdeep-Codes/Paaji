@@ -2,7 +2,8 @@
 ## I am Paaji, I work for @/Navdeep and get paid nothing for it. I love to help him and thats it!(I wont work for you)
 ## I love pings, I wont respond if you don't ping me 
 ## I am a bot with AI integrated into it! here are my features:
-### *Features:*
+### Features:
+- I can do a lot of things, here are some of them:
     - AI Answers - I have Deepseek("deepseek-r1-distill-llama-70b") in my brain so just ask me!
     - Thread summary - If you chat with me in a thread I will remember what you said before!
     - Conversation handling - I can help you with your questions and provide information about a specific thread, just give me the message link.
