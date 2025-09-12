@@ -13,4 +13,14 @@ async function getThreadContext(client, channel, threadTs) {
   }
 }
 
-module.exports = { getThreadContext };
+async function isUserInSlackList(client, userId, userGroupId) {
+  try {
+    const res = await client.usergroups.users.list({ usergroup: userGroupId });
+    return res.users && res.users.includes(userId);
+  } catch (err) {
+    console.error('Error checking Slack list:', err.data?.error || err.message);
+    return false;
+  }
+}
+
+module.exports = { getThreadContext, isUserInSlackList };

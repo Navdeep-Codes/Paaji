@@ -18,7 +18,11 @@ const app = new App({
 });
 
 let hackatimeInterval;
+const { setupChannelLeaveManager } = require('./features/channelLeaveManager');
+const userGroupId = 'S09FQ9BTEDN'; 
+const notifyChannelId = 'C08JRG8VCBY';
 
+setupChannelLeaveManager(app, 'C08JRG8VCBY', userGroupId, notifyChannelId);
 const TARGET_CHANNEL = 'C08JRG8VCBY';
 scheduleDailyPrompt(app, TARGET_CHANNEL);
 
